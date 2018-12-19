@@ -1,0 +1,39 @@
+<project name="of" default="" basedir=".">
+	<property environment="env" />
+
+	<condition property="exec.ext" value=".exe">
+		<os family="windows" />
+	</condition>
+	<condition property="exec.ext" value="">
+		<os family="unix" />
+	</condition>
+
+	<target name="wsgen">
+		<mkdir dir="src-generated" />
+		<mkdir dir="wsdl" />
+		<exec executable="${env.JAVA_HOME}/bin/wsgen${exec.ext}">
+			<arg line="-encoding UTF-8 -cp bin -keep -s src-generated -d bin -wsdl -r wsdl of.OfImpl" />
+		</exec>
+	</target>
+
+	<target name="wsimport">
+		<mkdir dir="src-generated" />
+		<exec executable="${env.JAVA_HOME}/bin/wsimport${exec.ext}">
+			<arg line="-encoding UTF-8 -keep -s src-generated -d bin -p of.client http://localhost:8080/ws/of?wsdl" />
+		</exec>
+	</target>
+
+	<target name="client">
+		<java classname="of.client.OfClient" classpath="bin" fork="true" output="log.xml">
+			<sysproperty key="com.sun.xml.internal.ws.transport.http.client.HttpTransportPipe.dump" value="true" />
+		</java>
+	</target>
+
+	<target name="clean">
+		<delete dir="src-generated/mwi104" />
+		<delete>
+			<fileset dir="wsdl" includes="*.wsdl *.xsd" />
+		</delete>
+		<delete file="log.xml" />
+	</target>
+</project>
